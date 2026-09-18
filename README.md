@@ -158,23 +158,6 @@ The platform supports role-based access control for both customers and administr
 
 ---
 
-## 🔮 Future Roadmap
-
-- [ ] Backend API integration (Node.js/Express or Firebase).
-- [ ] Real-time payment gateway integration (GCash API, PayMongo, or Stripe).
-- [ ] SMS / Email automated notifications on order milestones.
-- [ ] Advanced 3D Cake Customizer (Three.js interactive model viewer).
-- [ ] Multi-branch inventory & delivery routing.
-
----
-
-## 👤 Author
-
-**DeniDeveloper / Uzziah Montero**
-- GitHub: [@DeniDeveloper](https://github.com/DeniDeveloper)
-
----
-
 ## 📄 License
 
 This project is licensed under the **MIT License** — feel free to use it for learning, prototyping, or customization.
