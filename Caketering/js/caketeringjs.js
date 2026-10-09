@@ -45,7 +45,7 @@ const DEFAULT_PRODUCTS = [
         image: "https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=500&auto=format&fit=crop&q=60",
         description: "Fresh strawberries layered with vanilla sponge and whipped cream",
         badge: "Best Seller",
-        inStock: true,
+        inStock: false,
         rating: 4.9,
         reviewsCount: 38,
         ingredients: "Fresh Strawberries, Vanilla Sponge, Heavy Cream, Sugar, Eggs, Milk",
@@ -59,7 +59,7 @@ const DEFAULT_PRODUCTS = [
         image: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=500&auto=format&fit=crop&q=60",
         description: "Rich dark chocolate layers with ganache frosting",
         badge: "Popular",
-        inStock: true,
+        inStock: false,
         rating: 4.8,
         reviewsCount: 42,
         ingredients: "Belgian Dark Chocolate, Dutch Cocoa, Butter, Flour, Eggs, Vanilla",
@@ -73,7 +73,7 @@ const DEFAULT_PRODUCTS = [
         image: "https://images.unsplash.com/photo-1576618148400-f54bed99fcfd?w=500&auto=format&fit=crop&q=60",
         description: "Classic red velvet with cream cheese frosting",
         badge: null,
-        inStock: true,
+        inStock: false,
         rating: 4.7,
         reviewsCount: 29,
         ingredients: "Cocoa, Buttermilk, Cream Cheese, Flour, Sugar, Vanilla",
@@ -87,7 +87,7 @@ const DEFAULT_PRODUCTS = [
         image: "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=500&auto=format&fit=crop&q=60",
         description: "Buttery, flaky French croissants baked fresh",
         badge: "Fresh",
-        inStock: true,
+        inStock: false,
         rating: 4.9,
         reviewsCount: 51,
         ingredients: "French Butter, Wheat Flour, Yeast, Sugar, Sea Salt, Eggs",
@@ -101,7 +101,7 @@ const DEFAULT_PRODUCTS = [
         image: "https://images.unsplash.com/photo-1519340333755-56e9c1d04579?w=500&auto=format&fit=crop&q=60",
         description: "Filipino purple yam cake with macapuno strings",
         badge: "Local Favorite",
-        inStock: true,
+        inStock: false,
         rating: 5.0,
         reviewsCount: 64,
         ingredients: "Real Ube Halaya, Macapuno Strings, Chiffon Cake Base, Whipped Cream",
@@ -115,7 +115,7 @@ const DEFAULT_PRODUCTS = [
         image: "https://images.unsplash.com/photo-1569864358642-9d1684040f43?w=500&auto=format&fit=crop&q=60",
         description: "Assorted flavors: pistachio, raspberry, lemon, chocolate",
         badge: null,
-        inStock: true,
+        inStock: false,
         rating: 4.8,
         reviewsCount: 33,
         ingredients: "Almond Flour, Egg Whites, Sugar, Buttercream, Natural Fruit Puree",
@@ -129,7 +129,7 @@ const DEFAULT_PRODUCTS = [
         image: "https://images.unsplash.com/photo-1519915028121-7d3463d20b13?w=500&auto=format&fit=crop&q=60",
         description: "Sweet mangoes on chiffon cake with fresh cream",
         badge: "Seasonal",
-        inStock: true,
+        inStock: false,
         rating: 4.9,
         reviewsCount: 47,
         ingredients: "Ripe Carabao Mangoes, Chiffon Sponge, Fresh Cream, Sugar",
@@ -143,7 +143,7 @@ const DEFAULT_PRODUCTS = [
         image: "https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=500&auto=format&fit=crop&q=60",
         description: "Chewy cookies with Belgian chocolate chips",
         badge: null,
-        inStock: true,
+        inStock: false,
         rating: 4.6,
         reviewsCount: 22,
         ingredients: "Belgian Chocolate Chips, Brown Sugar, Butter, Flour, Vanilla",
@@ -157,7 +157,7 @@ const DEFAULT_PRODUCTS = [
         image: "https://images.unsplash.com/photo-1519915028121-7d3463d20b13?w=500&auto=format&fit=crop&q=60",
         description: "Butter tart shell with custard and fresh fruits",
         badge: null,
-        inStock: true,
+        inStock: false,
         rating: 4.7,
         reviewsCount: 19,
         ingredients: "Shortcrust Pastry, Vanilla Custard, Kiwi, Strawberries, Blueberries",
@@ -205,6 +205,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Ensure products, customCakes, and assets are saved in storage if first run
     customCakes = customCakes.filter(c => c.occasion !== '50th Birthday' && c.occasion !== 'Wedding');
     setStorage('customCakes', customCakes);
+
+    // Ensure all products are marked out of stock
+    products = products.map(p => ({ ...p, inStock: false }));
+    setStorage('products', products);
 
     renderProducts('all');
     renderCustomCakesGallery();
@@ -3021,6 +3025,16 @@ function openCheckoutModal() {
         return;
     }
 
+    const hasOutOfStock = cart.some(item => {
+        const prod = products.find(p => p.id === item.id);
+        return !prod || !prod.inStock;
+    });
+
+    if (hasOutOfStock || products.every(p => !p.inStock)) {
+        showNotification('All products are currently out of stock. Orders cannot be placed at this time.', 'error');
+        return;
+    }
+
     document.getElementById('checkout-modal').classList.remove('hidden');
 
     if (currentUser && !currentUser.isAdmin) {
@@ -3053,6 +3067,16 @@ function processCheckout(e) {
     if (!currentUser) {
         showNotification('Please login first', 'warning');
         openAuthModal();
+        return;
+    }
+
+    const hasOutOfStock = cart.some(item => {
+        const prod = products.find(p => p.id === item.id);
+        return !prod || !prod.inStock;
+    });
+
+    if (hasOutOfStock || products.every(p => !p.inStock)) {
+        showNotification('Products are currently out of stock. Orders cannot be placed.', 'error');
         return;
     }
 
@@ -3923,33 +3947,7 @@ function subscribeVIPClub(e) {
 
 // --- 7. CART PARTY ADD-ONS ---
 function addPartyAddonToCart(name, price, img) {
-    if (!currentUser) {
-        showNotification('Please log in first to add items', 'warning');
-        openAuthModal();
-        return;
-    }
-
-    const addonId = 900 + (name.length % 50);
-    const existing = cart.find(i => i.name === name);
-
-    if (existing) {
-        existing.quantity++;
-    } else {
-        cart.push({
-            id: addonId,
-            name: name,
-            category: "accessories",
-            price: price,
-            image: img || "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=300&auto=format&fit=crop&q=60",
-            quantity: 1,
-            inStock: true
-        });
-    }
-
-    setStorage('cart', cart);
-    updateCartUI();
-    showNotification(`Added "${name}" to your celebration cart!`, 'success');
-    openCartAutomatically();
+    showNotification('Party add-ons and celebration items are currently out of stock.', 'error');
 }
 
 // Ensure new renders trigger on DOM ready
