@@ -549,38 +549,22 @@ function closeDetailViewModal() {
 
 // --- AUTHENTICATION FUNCTIONS ---
 function switchAuthTab(tab) {
-    ['email', 'phone', 'facebook'].forEach(t => {
-        const tabEl = document.getElementById(`tab-${t}`);
-        const sectionEl = document.getElementById(`${t}-login-section`);
-
-        if (t === tab) {
-            if (tabEl) {
-                tabEl.classList.add('text-pink-600', 'border-b-2', 'border-pink-600');
-                tabEl.classList.remove('text-gray-500');
-            }
-            if (sectionEl) sectionEl.classList.remove('hidden');
-        } else {
-            if (tabEl) {
-                tabEl.classList.remove('text-pink-600', 'border-b-2', 'border-pink-600');
-                tabEl.classList.add('text-gray-500');
-            }
-            if (sectionEl) sectionEl.classList.add('hidden');
-        }
-    });
-
-    const regSection = document.getElementById('register-section');
-    if (regSection) regSection.classList.add('hidden');
-    const authTitle = document.getElementById('auth-title');
-    if (authTitle) authTitle.textContent = 'Welcome to Caketering!';
+    if (tab === 'register') {
+        showRegisterForm();
+    } else {
+        showLoginForm();
+    }
 }
 
 function openAuthModal() {
-    document.getElementById('auth-modal').classList.remove('hidden');
-    switchAuthTab('email');
+    const modal = document.getElementById('auth-modal');
+    if (modal) modal.classList.remove('hidden');
+    showLoginForm();
 }
 
 function closeAuthModal() {
-    document.getElementById('auth-modal').classList.add('hidden');
+    const modal = document.getElementById('auth-modal');
+    if (modal) modal.classList.add('hidden');
 }
 
 function togglePasswordVisibility() {
@@ -669,75 +653,24 @@ function loginWithEmail() {
     showNotification(`Welcome back, ${user.name}!`, 'success');
 }
 
-function loginWithGoogle() {
-    showNotification('Connecting to Google...', 'info');
-
-    setTimeout(() => {
-        const googleUser = {
-            id: 'google_' + Math.random().toString(36).substr(2, 9),
-            email: 'user@gmail.com',
-            name: 'Google User',
-            isAdmin: false,
-            loginMethod: 'google',
-            lastLogin: new Date().toISOString(),
-            createdAt: new Date().toISOString()
-        };
-
-        currentUser = googleUser;
-        setStorage('currentUser', googleUser);
-
-        if (!users.find(u => u.email === googleUser.email)) {
-            users.push(googleUser);
-            setStorage('users', users);
-        }
-
-        updateUserUI();
-        closeAuthModal();
-        showNotification('Logged in with Google!', 'success');
-    }, 1200);
-}
-
-function loginWithFacebook() {
-    showNotification('Connecting to Facebook...', 'info');
-
-    setTimeout(() => {
-        const fbUser = {
-            id: 'fb_' + Math.random().toString(36).substr(2, 9),
-            email: 'user@facebook.com',
-            name: 'Facebook User',
-            isAdmin: false,
-            loginMethod: 'facebook',
-            lastLogin: new Date().toISOString(),
-            createdAt: new Date().toISOString()
-        };
-
-        currentUser = fbUser;
-        setStorage('currentUser', fbUser);
-
-        if (!users.find(u => u.email === fbUser.email)) {
-            users.push(fbUser);
-            setStorage('users', users);
-        }
-
-        updateUserUI();
-        closeAuthModal();
-        showNotification('Logged in with Facebook!', 'success');
-    }, 1200);
-}
-
 function showRegisterForm() {
-    document.getElementById('email-login-section').classList.add('hidden');
-    document.getElementById('phone-login-section').classList.add('hidden');
-    document.getElementById('facebook-login-section').classList.add('hidden');
-    document.getElementById('register-section').classList.remove('hidden');
-    document.getElementById('auth-title').textContent = 'Create Account';
+    const emailSec = document.getElementById('email-login-section');
+    const regSec = document.getElementById('register-section');
+    const authTitle = document.getElementById('auth-title');
+
+    if (emailSec) emailSec.classList.add('hidden');
+    if (regSec) regSec.classList.remove('hidden');
+    if (authTitle) authTitle.textContent = 'Create an Account';
 }
 
 function showLoginForm() {
-    document.getElementById('register-section').classList.add('hidden');
-    document.getElementById('email-login-section').classList.remove('hidden');
-    document.getElementById('auth-title').textContent = 'Welcome to Caketering!';
-    switchAuthTab('email');
+    const emailSec = document.getElementById('email-login-section');
+    const regSec = document.getElementById('register-section');
+    const authTitle = document.getElementById('auth-title');
+
+    if (regSec) regSec.classList.add('hidden');
+    if (emailSec) emailSec.classList.remove('hidden');
+    if (authTitle) authTitle.textContent = 'Welcome to Caketering!';
 }
 
 function registerUser() {
@@ -816,147 +749,6 @@ function forgotPassword() {
 function validateEmail(email) {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return re.test(email);
-}
-
-function sendOTP() {
-    const phone = document.getElementById('phone-input').value.trim();
-    const agreeTerms = document.getElementById('agree-terms')?.checked;
-
-    if (document.getElementById('agree-terms') && !agreeTerms) {
-        showNotification('Please agree to the Terms and Privacy Policy', 'error');
-        return;
-    }
-
-    if (!/^9\d{9}$/.test(phone) && !/^09\d{9}$/.test(phone)) {
-        showNotification('Please enter a valid Philippine mobile number (e.g., 9123456789)', 'error');
-        return;
-    }
-
-    const cleanPhone = phone.replace(/^0/, '');
-    const fullPhone = '+63' + cleanPhone;
-
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiryTime = Date.now() + 5 * 60 * 1000;
-
-    sessionStorage.setItem('pendingOTP', JSON.stringify({
-        code: otp,
-        expiry: expiryTime,
-        phone: fullPhone
-    }));
-
-    document.getElementById('otp-phone').textContent = fullPhone;
-
-    document.getElementById('phone-step').classList.add('hidden');
-    document.getElementById('otp-step').classList.remove('hidden');
-
-    startOTPTimer();
-
-    showNotification(`DEMO MODE: Your OTP is ${otp} (Valid for 5 mins)`, 'info');
-}
-
-function startOTPTimer() {
-    const timerDiv = document.getElementById('otp-timer');
-
-    if (otpTimer) clearInterval(otpTimer);
-
-    otpTimer = setInterval(() => {
-        const storedOTP = JSON.parse(sessionStorage.getItem('pendingOTP'));
-        if (storedOTP) {
-            const timeLeft = Math.max(0, Math.floor((storedOTP.expiry - Date.now()) / 1000));
-            const minutes = Math.floor(timeLeft / 60);
-            const seconds = timeLeft % 60;
-
-            if (timerDiv) {
-                timerDiv.innerHTML = `
-                    <i class="fas fa-clock mr-1"></i> OTP expires in: ${minutes}:${seconds.toString().padStart(2, '0')}
-                `;
-            }
-
-            if (timeLeft <= 0) {
-                clearInterval(otpTimer);
-                sessionStorage.removeItem('pendingOTP');
-                if (timerDiv) timerDiv.innerHTML = '<span class="text-red-600">OTP expired. Please request again.</span>';
-            }
-        }
-    }, 1000);
-}
-
-function moveToNext(current, next) {
-    if (current.value.length >= 1) {
-        const nextInput = document.querySelectorAll('.otp-input')[next];
-        if (nextInput) nextInput.focus();
-    }
-}
-
-function verifyOTP() {
-    const otpInputs = document.querySelectorAll('.otp-input');
-    const enteredOTP = Array.from(otpInputs).map(input => input.value).join('');
-
-    if (enteredOTP.length !== 6) {
-        showNotification('Please enter the 6-digit OTP', 'error');
-        return;
-    }
-
-    const storedOTP = JSON.parse(sessionStorage.getItem('pendingOTP'));
-
-    if (!storedOTP || Date.now() > storedOTP.expiry) {
-        showNotification('OTP expired. Please request again.', 'error');
-        sessionStorage.removeItem('pendingOTP');
-        backToPhone();
-        return;
-    }
-
-    if (enteredOTP !== storedOTP.code) {
-        showNotification('Invalid OTP. Please try again.', 'error');
-        otpInputs.forEach(input => input.value = '');
-        if (otpInputs[0]) otpInputs[0].focus();
-        return;
-    }
-
-    const phone = storedOTP.phone;
-    let user = users.find(u => u.phone === phone);
-
-    if (!user) {
-        user = {
-            id: users.length > 0 ? Math.max(...users.map(u => typeof u.id === 'number' ? u.id : 0)) + 1 : 1,
-            phone: phone,
-            name: 'Customer',
-            email: '',
-            address: '',
-            isAdmin: false,
-            loginMethod: 'phone',
-            createdAt: new Date().toISOString(),
-            lastLogin: new Date().toISOString(),
-            verified: true
-        };
-        users.push(user);
-        setStorage('users', users);
-    } else {
-        user.lastLogin = new Date().toISOString();
-        setStorage('users', users);
-    }
-
-    currentUser = user;
-    setStorage('currentUser', user);
-
-    updateUserUI();
-    closeAuthModal();
-
-    otpInputs.forEach(input => input.value = '');
-    sessionStorage.removeItem('pendingOTP');
-    if (otpTimer) clearInterval(otpTimer);
-
-    showNotification('Login successful!', 'success');
-}
-
-function resendOTP() {
-    sendOTP();
-}
-
-function backToPhone() {
-    document.getElementById('phone-step').classList.remove('hidden');
-    document.getElementById('otp-step').classList.add('hidden');
-    if (otpTimer) clearInterval(otpTimer);
 }
 
 function logout() {
