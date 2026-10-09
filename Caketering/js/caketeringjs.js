@@ -982,6 +982,7 @@ function updateUserUI() {
     const userProfile = document.getElementById('user-profile');
     const userNameDisplay = document.getElementById('user-name-display');
     const adminBtn = document.getElementById('admin-btn');
+    const userMenuAdminLink = document.getElementById('user-menu-admin-link');
 
     if (currentUser) {
         if (loginBtn) loginBtn.classList.add('hidden');
@@ -989,8 +990,10 @@ function updateUserUI() {
 
         if (currentUser.isAdmin) {
             if (userNameDisplay) userNameDisplay.textContent = 'Admin';
-            if (adminBtn) adminBtn.classList.remove('hidden');
+            if (userMenuAdminLink) userMenuAdminLink.classList.remove('hidden');
+            if (adminBtn) adminBtn.classList.add('hidden'); // keep clean
         } else {
+            if (userMenuAdminLink) userMenuAdminLink.classList.add('hidden');
             if (userNameDisplay) {
                 if (currentUser.name && currentUser.name !== 'Customer') {
                     userNameDisplay.textContent = currentUser.name.split(' ')[0];
@@ -1009,6 +1012,7 @@ function updateUserUI() {
         if (loginBtn) loginBtn.classList.remove('hidden');
         if (userProfile) userProfile.classList.add('hidden');
         if (adminBtn) adminBtn.classList.add('hidden');
+        if (userMenuAdminLink) userMenuAdminLink.classList.add('hidden');
     }
 }
 
@@ -3086,9 +3090,24 @@ function updateCartUI() {
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
     const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
+    // Free delivery progress bar calculation (Threshold: ₱1,500)
+    const freeShippingGoal = 1500;
+    const progressEl = document.getElementById('cart-free-shipping-progress');
+    const progressTextEl = document.getElementById('cart-free-shipping-text');
+    if (progressEl && progressTextEl) {
+        const remaining = Math.max(0, freeShippingGoal - subtotal);
+        const percentage = Math.min(100, Math.round((subtotal / freeShippingGoal) * 100));
+        progressEl.style.width = `${percentage}%`;
+        if (remaining === 0) {
+            progressTextEl.innerHTML = '<span class="text-emerald-600 font-bold">🎉 You unlocked FREE Delivery!</span>';
+        } else {
+            progressTextEl.innerHTML = `Add <span class="font-bold text-pink-600">₱${remaining.toFixed(2)}</span> more for <strong>FREE Delivery</strong>`;
+        }
+    }
+
     const zoneSelect = document.getElementById('cart-delivery-zone');
     if (zoneSelect) {
-        currentDeliveryFee = parseFloat(zoneSelect.value) || 50;
+        currentDeliveryFee = subtotal >= freeShippingGoal ? 0 : (parseFloat(zoneSelect.value) || 50);
     }
 
     const discountRow = document.getElementById('promo-discount-row');
@@ -3101,7 +3120,7 @@ function updateCartUI() {
         discountRow.classList.add('hidden');
     }
 
-    const effectiveDelivery = subtotal > 0 ? currentDeliveryFee : 0;
+    const effectiveDelivery = subtotal > 0 ? (subtotal >= freeShippingGoal ? 0 : currentDeliveryFee) : 0;
     const total = subtotal > 0 ? Math.max(0, subtotal - appliedDiscount + effectiveDelivery) : 0;
 
     if (badge) {
@@ -3110,7 +3129,7 @@ function updateCartUI() {
     }
 
     if (subtotalEl) subtotalEl.textContent = `₱${subtotal.toFixed(2)}`;
-    if (deliveryFeeEl) deliveryFeeEl.textContent = `₱${effectiveDelivery.toFixed(2)}`;
+    if (deliveryFeeEl) deliveryFeeEl.textContent = subtotal >= freeShippingGoal ? 'FREE (₱0.00)' : `₱${effectiveDelivery.toFixed(2)}`;
     if (totalEl) totalEl.textContent = `₱${total.toFixed(2)}`;
     if (checkoutBtn) checkoutBtn.disabled = cart.length === 0;
 
@@ -3118,31 +3137,34 @@ function updateCartUI() {
 
     if (cart.length === 0) {
         cartItems.innerHTML = `
-            <div class="text-center text-gray-400 mt-20">
-                <i class="fas fa-shopping-basket text-4xl mb-3"></i>
-                <p>Your cart is empty</p>
-                <button onclick="toggleCart()" class="mt-4 text-pink-600 font-medium hover:underline">Start Shopping</button>
+            <div class="text-center text-gray-400 py-12">
+                <div class="w-16 h-16 bg-pink-50 rounded-full flex items-center justify-center mx-auto mb-3 text-pink-500 text-2xl">
+                    <i class="fas fa-shopping-basket"></i>
+                </div>
+                <h4 class="font-bold text-gray-700 text-base mb-1">Your cart is empty</h4>
+                <p class="text-xs text-gray-500">Treat yourself or someone special with our fresh bakes!</p>
+                <button onclick="toggleCart()" class="mt-4 px-6 py-2 bg-pink-50 text-pink-600 rounded-full text-xs font-bold hover:bg-pink-100 transition">Browse Menu</button>
             </div>
         `;
     } else {
         cartItems.innerHTML = cart.map(item => `
-            <div class="flex gap-4 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
-                <img src="${item.image}" class="w-20 h-20 object-cover rounded-lg" alt="${escapeHtml(item.name)}">
-                <div class="flex-1">
-                    <h4 class="font-bold text-gray-800 text-sm mb-1">${escapeHtml(item.name)}</h4>
-                    <p class="text-pink-600 font-bold text-sm mb-2">₱${item.price}</p>
-                    <div class="flex items-center gap-3">
-                        <button onclick="updateQuantity(${item.id}, -1)" class="w-6 h-6 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition">
-                            <i class="fas fa-minus text-xs"></i>
+            <div class="flex gap-4 bg-white p-3.5 rounded-2xl border border-gray-100 shadow-sm hover:border-pink-200 transition">
+                <img src="${item.image}" class="w-16 h-16 object-cover rounded-xl shadow-xs" alt="${escapeHtml(item.name)}">
+                <div class="flex-1 min-w-0">
+                    <h4 class="font-bold text-gray-800 text-sm truncate">${escapeHtml(item.name)}</h4>
+                    <p class="text-pink-600 font-bold text-xs mb-2">₱${item.price}</p>
+                    <div class="flex items-center gap-2">
+                        <button onclick="updateQuantity(${item.id}, -1)" class="w-6 h-6 rounded-full bg-gray-100 hover:bg-pink-100 hover:text-pink-600 flex items-center justify-center text-gray-600 transition">
+                            <i class="fas fa-minus text-[10px]"></i>
                         </button>
-                        <span class="font-semibold text-sm w-4 text-center">${item.quantity}</span>
-                        <button onclick="updateQuantity(${item.id}, 1)" class="w-6 h-6 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition">
-                            <i class="fas fa-plus text-xs"></i>
+                        <span class="font-bold text-xs w-5 text-center">${item.quantity}</span>
+                        <button onclick="updateQuantity(${item.id}, 1)" class="w-6 h-6 rounded-full bg-gray-100 hover:bg-pink-100 hover:text-pink-600 flex items-center justify-center text-gray-600 transition">
+                            <i class="fas fa-plus text-[10px]"></i>
                         </button>
                     </div>
                 </div>
-                <button onclick="removeFromCart(${item.id})" class="text-gray-400 hover:text-red-500 transition self-start">
-                    <i class="fas fa-trash-alt"></i>
+                <button onclick="removeFromCart(${item.id})" class="text-gray-300 hover:text-red-500 transition self-start p-1" title="Remove item">
+                    <i class="fas fa-trash-alt text-xs"></i>
                 </button>
             </div>
         `).join('');
@@ -3709,3 +3731,438 @@ function exportUsersCSV() {
     link.remove();
     showNotification('Exported customers CSV report successfully!', 'success');
 }
+
+// ==================== NEW PREMIUM STOREFRONT & INTERACTIVE FEATURES ====================
+
+// --- 1. PROMO CODE CLIPBOARD HELPER ---
+function copyPromoCode(code) {
+    if (!code) code = 'SWEET10';
+    navigator.clipboard.writeText(code).then(() => {
+        showNotification(`Copied promo code "${code}" to clipboard! Use at checkout.`, 'success');
+        const input = document.getElementById('cart-promo-code');
+        if (input) input.value = code;
+    }).catch(() => {
+        showNotification(`Use promo code: ${code}`, 'info');
+    });
+}
+
+function closeAnnouncementBanner() {
+    const bar = document.getElementById('vip-announcement-bar');
+    if (bar) {
+        bar.style.transition = 'all 0.3s ease';
+        bar.style.maxHeight = '0';
+        bar.style.opacity = '0';
+        bar.style.overflow = 'hidden';
+        setTimeout(() => bar.remove(), 300);
+    }
+}
+
+// --- 2. INTERACTIVE BESPOKE CAKE STUDIO ---
+let studioState = {
+    tier: '8-inch',
+    flavor: 'ube-halaya',
+    frosting: 'buttercream-floral',
+    topper: 'acrylic-gold',
+    extras: []
+};
+
+function selectStudioOption(type, value, el) {
+    studioState[type] = value;
+    
+    // Update active class on siblings
+    const parent = el.closest('.studio-option-group');
+    if (parent) {
+        parent.querySelectorAll('.option-chip').forEach(chip => chip.classList.remove('selected'));
+        el.classList.add('selected');
+    }
+    
+    calculateStudioPrice();
+}
+
+function toggleStudioExtra(value, price, el) {
+    const idx = studioState.extras.findIndex(e => e.name === value);
+    if (idx > -1) {
+        studioState.extras.splice(idx, 1);
+        el.classList.remove('selected');
+    } else {
+        studioState.extras.push({ name: value, price: price });
+        el.classList.add('selected');
+    }
+    calculateStudioPrice();
+}
+
+function calculateStudioPrice() {
+    let basePrice = 1250;
+    let servings = "10 - 14 servings";
+    let tierName = "8\" Classic Celebration Tier";
+
+    if (studioState.tier === '6-inch') {
+        basePrice = 850;
+        servings = "6 - 8 servings";
+        tierName = "6\" Petite Bento Tier";
+    } else if (studioState.tier === '8-inch') {
+        basePrice = 1450;
+        servings = "12 - 16 servings";
+        tierName = "8\" Classic Celebration Tier";
+    } else if (studioState.tier === '10-inch') {
+        basePrice = 2400;
+        servings = "20 - 25 servings";
+        tierName = "10\" Grand Party Tier";
+    } else if (studioState.tier === '2-tier') {
+        basePrice = 3900;
+        servings = "35 - 45 servings";
+        tierName = "2-Tier Deluxe Tier (6\" + 9\")";
+    } else if (studioState.tier === '3-tier') {
+        basePrice = 6500;
+        servings = "60 - 80 servings";
+        tierName = "3-Tier Wedding Masterpiece (6\" + 8\" + 10\")";
+    }
+
+    // Flavor cost
+    let flavorCost = 0;
+    let flavorName = "Signature Ube Halaya";
+    if (studioState.flavor === 'belgian-chocolate') {
+        flavorCost = 150;
+        flavorName = "Belgian Dark Chocolate Fudge";
+    } else if (studioState.flavor === 'red-velvet') {
+        flavorCost = 120;
+        flavorName = "Classic Red Velvet Cream Cheese";
+    } else if (studioState.flavor === 'strawberry-cloud') {
+        flavorCost = 200;
+        flavorName = "Fresh Strawberries & Whipped Cream";
+    } else if (studioState.flavor === 'carabao-mango') {
+        flavorCost = 180;
+        flavorName = "Ripe Carabao Mango Bavarian";
+    }
+
+    // Frosting cost
+    let frostingCost = 0;
+    let frostingName = "Pastel Buttercream & Sugar Flowers";
+    if (studioState.frosting === 'fondant-art') {
+        frostingCost = 450;
+        frostingName = "Hand-Sculpted Fondant Artwork";
+    } else if (studioState.frosting === 'chocolate-drip') {
+        frostingCost = 180;
+        frostingName = "Belgian Ganache Drip & Fresh Berries";
+    } else if (studioState.frosting === 'gold-luxury') {
+        frostingCost = 350;
+        frostingName = "24K Edible Gold Foil & Fresh Florals";
+    }
+
+    // Extras cost
+    const extrasCost = studioState.extras.reduce((acc, curr) => acc + curr.price, 0);
+
+    const totalEstimated = basePrice + flavorCost + frostingCost + extrasCost;
+
+    // Update Studio Preview UI
+    const priceEl = document.getElementById('studio-live-price');
+    const tierEl = document.getElementById('studio-summary-tier');
+    const flavorEl = document.getElementById('studio-summary-flavor');
+    const frostingEl = document.getElementById('studio-summary-frosting');
+    const servingsEl = document.getElementById('studio-summary-servings');
+
+    if (priceEl) priceEl.textContent = `₱${totalEstimated.toLocaleString()}`;
+    if (tierEl) tierEl.textContent = tierName;
+    if (flavorEl) flavorEl.textContent = flavorName;
+    if (frostingEl) frostingEl.textContent = frostingName;
+    if (servingsEl) servingsEl.textContent = servings;
+}
+
+function applyStudioToCustomModal() {
+    showCustomOrderModal();
+
+    // Map studio state to modal fields
+    const sizeSelect = document.getElementById('custom-size');
+    const budgetSelect = document.getElementById('custom-budget');
+    const flavorInput = document.getElementById('custom-flavor');
+    const descTextarea = document.getElementById('custom-description');
+
+    if (sizeSelect) {
+        if (studioState.tier === '6-inch') sizeSelect.value = '6-inch';
+        else if (studioState.tier === '8-inch') sizeSelect.value = '8-inch';
+        else if (studioState.tier === '10-inch') sizeSelect.value = '10-inch';
+        else sizeSelect.value = 'tiered';
+    }
+
+    let summaryText = `[Custom Studio Design]\nStructure: ${studioState.tier}\nFlavor: ${studioState.flavor}\nFrosting: ${studioState.frosting}\n`;
+    if (studioState.extras.length > 0) {
+        summaryText += `Add-ons: ${studioState.extras.map(e => e.name).join(', ')}\n`;
+    }
+    const dedication = document.getElementById('studio-dedication-input')?.value;
+    if (dedication) {
+        summaryText += `Inscription: "${dedication}"\n`;
+    }
+
+    if (descTextarea) {
+        descTextarea.value = summaryText;
+    }
+    if (flavorInput) {
+        flavorInput.value = studioState.flavor;
+    }
+
+    calculateLiveCustomPrice();
+    showNotification('Studio design transferred to request form! Please finalize your details.', 'info');
+}
+
+// --- 3. EVENT CATERING & CAKE SIZING CALCULATOR ---
+function updateCateringCalculator() {
+    const guestsInput = document.getElementById('catering-guests-range');
+    const guestCountDisplay = document.getElementById('catering-guests-val');
+    const eventType = document.getElementById('catering-event-type')?.value || 'birthday';
+
+    if (!guestsInput || !guestCountDisplay) return;
+
+    const guests = parseInt(guestsInput.value, 10);
+    guestCountDisplay.textContent = guests;
+
+    const cakeSizeEl = document.getElementById('calc-res-cake-size');
+    const pastryBoxEl = document.getElementById('calc-res-pastry-boxes');
+    const budgetRangeEl = document.getElementById('calc-res-budget-range');
+
+    let cakeRecommendation = "8\" Classic Cake";
+    let pastryRecommendation = "1 Box Cupcakes (6pcs)";
+    let minBudget = 1200;
+    let maxBudget = 1800;
+
+    if (guests <= 10) {
+        cakeRecommendation = "6\" Petite or 8\" Classic Cake";
+        pastryRecommendation = "1 Box Assorted Pastries (4pcs)";
+        minBudget = 900;
+        maxBudget = 1400;
+    } else if (guests <= 25) {
+        cakeRecommendation = "10\" Grand Party Cake or 2-Tier Mini";
+        pastryRecommendation = "2 Boxes Cupcakes + 1 Box Macarons";
+        minBudget = 2200;
+        maxBudget = 3200;
+    } else if (guests <= 50) {
+        cakeRecommendation = "2-Tier Deluxe Cake (6\" + 9\")";
+        pastryRecommendation = "4 Boxes Cupcakes (24pcs) + 2 Pastry Boxes";
+        minBudget = 4500;
+        maxBudget = 6200;
+    } else if (guests <= 80) {
+        cakeRecommendation = "3-Tier Celebration Cake (6\" + 8\" + 10\")";
+        pastryRecommendation = "Full Dessert Grazing Table (60+ mini pastries)";
+        minBudget = 8500;
+        maxBudget = 12500;
+    } else {
+        cakeRecommendation = "3-Tier Grand Masterpiece + Sheet Cutting Cakes";
+        pastryRecommendation = "Deluxe Artisan Dessert Buffet (100+ items)";
+        minBudget = 14000;
+        maxBudget = 22000;
+    }
+
+    if (cakeSizeEl) cakeSizeEl.textContent = cakeRecommendation;
+    if (pastryBoxEl) pastryBoxEl.textContent = pastryRecommendation;
+    if (budgetRangeEl) budgetRangeEl.textContent = `₱${minBudget.toLocaleString()} - ₱${maxBudget.toLocaleString()}`;
+}
+
+// --- 4. ACCORDION FAQ CONTROLLER ---
+function toggleFaq(btn) {
+    const item = btn.closest('.faq-item');
+    if (!item) return;
+    const isOpen = item.classList.contains('open');
+
+    // Close all other FAQs for accordion behavior
+    document.querySelectorAll('.faq-item').forEach(el => {
+        if (el !== item) el.classList.remove('open');
+    });
+
+    if (isOpen) {
+        item.classList.remove('open');
+    } else {
+        item.classList.add('open');
+    }
+}
+
+// --- 5. VERIFIED CUSTOMER REVIEWS SYSTEM ---
+const DEFAULT_COMMUNITY_REVIEWS = [
+    {
+        id: "rev-1",
+        author: "Camille Rodriguez",
+        role: "Verified Buyer • Zamboanga City",
+        rating: 5,
+        event: "18th Birthday Debut",
+        cake: "Signature Ube Halaya Cake",
+        date: "2 days ago",
+        comment: "The Ube Halaya cake exceeded all our expectations! The real macapuno filling was so fresh, and the texture melted in our mouths. Everyone at the party asked where we ordered it.",
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80"
+    },
+    {
+        id: "rev-2",
+        author: "Mark Anthony Tan",
+        role: "Corporate Client • Sta. Maria",
+        rating: 5,
+        event: "Company Anniversary",
+        cake: "Belgian Chocolate Fudge & Croissants",
+        date: "1 week ago",
+        comment: "Ordered 50 assorted pastries and a 2-tier chocolate fudge cake for our office celebration. On-time delivery, pristine packaging, and the French butter croissants are world-class!",
+        avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&auto=format&fit=crop&q=80"
+    },
+    {
+        id: "rev-3",
+        author: "Jessica Lim-Reyes",
+        role: "Verified Buyer • Pasonanca",
+        rating: 5,
+        event: "Wedding Reception",
+        cake: "3-Tier Floral Custom Cake",
+        date: "2 weeks ago",
+        comment: "Uzziah and Ralph worked with our floral moodboard and created the most breathtaking wedding cake! The strawberry sponge with real cream was a huge crowd pleaser.",
+        avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=120&auto=format&fit=crop&q=80"
+    }
+];
+
+let communityReviews = getStorage('communityReviews', DEFAULT_COMMUNITY_REVIEWS);
+let currentReviewRating = 5;
+
+function selectReviewStar(star) {
+    currentReviewRating = star;
+    for (let i = 1; i <= 5; i++) {
+        const starEl = document.getElementById(`review-star-${i}`);
+        if (starEl) {
+            if (i <= star) {
+                starEl.classList.remove('text-gray-300', 'far');
+                starEl.classList.add('text-amber-400', 'fas');
+            } else {
+                starEl.classList.remove('text-amber-400', 'fas');
+                starEl.classList.add('text-gray-300', 'far');
+            }
+        }
+    }
+}
+
+function openReviewModal(productName) {
+    const modal = document.getElementById('review-modal');
+    if (!modal) return;
+    if (productName && document.getElementById('review-product-name')) {
+        document.getElementById('review-product-name').value = productName;
+    }
+    modal.classList.remove('hidden');
+    selectReviewStar(5);
+}
+
+function closeReviewModal() {
+    const modal = document.getElementById('review-modal');
+    if (modal) modal.classList.add('hidden');
+}
+
+function submitCustomerReview(e) {
+    if (e) e.preventDefault();
+    const name = document.getElementById('review-author')?.value.trim();
+    const eventType = document.getElementById('review-occasion')?.value || 'Celebration';
+    const cakeName = document.getElementById('review-product-name')?.value || 'Artisan Pastries';
+    const comment = document.getElementById('review-text')?.value.trim();
+
+    if (!name || !comment) {
+        showNotification('Please fill in your name and review details', 'warning');
+        return;
+    }
+
+    const newRev = {
+        id: 'rev-' + Date.now(),
+        author: name,
+        role: "Verified Customer • Zamboanga City",
+        rating: currentReviewRating,
+        event: eventType,
+        cake: cakeName,
+        date: "Just now",
+        comment: comment,
+        avatar: `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(name)}`
+    };
+
+    communityReviews.unshift(newRev);
+    setStorage('communityReviews', communityReviews);
+    renderCommunityReviews();
+    closeReviewModal();
+    showNotification('Thank you for your lovely review! It has been published.', 'success');
+
+    // Reset form
+    document.getElementById('review-author').value = '';
+    document.getElementById('review-text').value = '';
+}
+
+function renderCommunityReviews() {
+    const container = document.getElementById('community-reviews-grid');
+    if (!container) return;
+
+    container.innerHTML = communityReviews.map(r => `
+        <div class="review-card p-6 rounded-2xl flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-3">
+                        <img src="${r.avatar}" alt="${escapeHtml(r.author)}" class="w-12 h-12 rounded-full object-cover border-2 border-pink-200">
+                        <div>
+                            <h4 class="font-bold text-gray-900 text-sm">${escapeHtml(r.author)}</h4>
+                            <p class="text-[11px] text-pink-600 font-semibold flex items-center gap-1">
+                                <i class="fas fa-check-circle text-xs text-emerald-500"></i> ${escapeHtml(r.role)}
+                            </p>
+                        </div>
+                    </div>
+                    <span class="text-xs text-gray-400">${escapeHtml(r.date)}</span>
+                </div>
+                <div class="flex items-center gap-1 text-amber-400 text-sm mb-3">
+                    ${Array.from({ length: 5 }).map((_, i) => `<i class="${i < r.rating ? 'fas' : 'far'} fa-star"></i>`).join('')}
+                    <span class="text-xs font-bold text-gray-700 ml-1.5">${r.rating}.0</span>
+                </div>
+                <div class="inline-block bg-pink-50 text-pink-700 text-xs font-semibold px-2.5 py-1 rounded-full mb-3">
+                    <i class="fas fa-tag mr-1 text-[10px]"></i> ${escapeHtml(r.event)} • ${escapeHtml(r.cake)}
+                </div>
+                <p class="text-gray-600 text-sm leading-relaxed italic">"${escapeHtml(r.comment)}"</p>
+            </div>
+        </div>
+    `).join('');
+}
+
+// --- 6. VIP SWEET CLUB NEWSLETTER ---
+function subscribeVIPClub(e) {
+    if (e) e.preventDefault();
+    const emailInput = document.getElementById('vip-newsletter-email');
+    if (!emailInput) return;
+    const email = emailInput.value.trim();
+
+    if (!validateEmail(email)) {
+        showNotification('Please enter a valid email address', 'error');
+        return;
+    }
+
+    showNotification(`Welcome to the Sweet Club! Use voucher "SWEET10" for 10% off your first order.`, 'success');
+    copyPromoCode('SWEET10');
+    emailInput.value = '';
+}
+
+// --- 7. CART PARTY ADD-ONS ---
+function addPartyAddonToCart(name, price, img) {
+    if (!currentUser) {
+        showNotification('Please log in first to add items', 'warning');
+        openAuthModal();
+        return;
+    }
+
+    const addonId = 900 + (name.length % 50);
+    const existing = cart.find(i => i.name === name);
+
+    if (existing) {
+        existing.quantity++;
+    } else {
+        cart.push({
+            id: addonId,
+            name: name,
+            category: "accessories",
+            price: price,
+            image: img || "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=300&auto=format&fit=crop&q=60",
+            quantity: 1,
+            inStock: true
+        });
+    }
+
+    setStorage('cart', cart);
+    updateCartUI();
+    showNotification(`Added "${name}" to your celebration cart!`, 'success');
+    openCartAutomatically();
+}
+
+// Ensure new renders trigger on DOM ready
+document.addEventListener('DOMContentLoaded', () => {
+    calculateStudioPrice();
+    updateCateringCalculator();
+    renderCommunityReviews();
+});
