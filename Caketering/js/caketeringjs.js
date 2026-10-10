@@ -3950,6 +3950,34 @@ function addPartyAddonToCart(name, price, img) {
     showNotification('Party add-ons and celebration items are currently out of stock.', 'error');
 }
 
+// --- 8. MOBILE NAVIGATION HELPERS ---
+function toggleMobileNav() {
+    const drawer = document.getElementById('mobile-nav-drawer');
+    const icon = document.getElementById('mobile-menu-icon');
+    if (!drawer) return;
+    
+    drawer.classList.toggle('hidden');
+    if (icon) {
+        if (drawer.classList.contains('hidden')) {
+            icon.classList.remove('fa-times');
+            icon.classList.add('fa-bars');
+        } else {
+            icon.classList.remove('fa-bars');
+            icon.classList.add('fa-times');
+        }
+    }
+}
+
+function closeMobileNav() {
+    const drawer = document.getElementById('mobile-nav-drawer');
+    const icon = document.getElementById('mobile-menu-icon');
+    if (drawer) drawer.classList.add('hidden');
+    if (icon) {
+        icon.classList.remove('fa-times');
+        icon.classList.add('fa-bars');
+    }
+}
+
 // Ensure new renders trigger on DOM ready
 document.addEventListener('DOMContentLoaded', () => {
     calculateStudioPrice();

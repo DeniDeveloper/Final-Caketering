@@ -630,29 +630,9 @@ h1, h2, h3, .serif {
     vertical-align: middle;
 }
 
-/* Mobile hamburger menu */
+/* Mobile hamburger menu button */
 .mobile-menu-btn {
     display: none;
-}
-@media (max-width: 768px) {
-    .mobile-menu-btn {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 40px;
-        height: 40px;
-        border-radius: 8px;
-        border: none;
-        background: transparent;
-        color: #374151;
-        font-size: 1.25rem;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-    .mobile-menu-btn:hover {
-        background: #fdf2f8;
-        color: #db2777;
-    }
 }
 
 /* Inquiry card styles */
@@ -701,4 +681,289 @@ h1, h2, h3, .serif {
 .admin-kpi-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 10px 20px -5px rgba(0,0,0,0.08);
+}
+
+/* ==========================================================================
+   CROSS-DEVICE & RESPONSIVE COMPATIBILITY ENHANCEMENTS
+   Breakpoints: Mobile (<640px), Tablet (640px-1023px), PC/Desktop (1024px+)
+   ========================================================================== */
+
+/* Utility: Hide Scrollbar while allowing smooth touch scroll */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* Touch Friendly Interactions */
+@media (hover: none) and (pointer: coarse) {
+    .btn-primary:hover,
+    .btn-secondary:hover,
+    .cake-card:hover,
+    .team-card:hover {
+        transform: none;
+    }
+    .btn-primary:active {
+        transform: scale(0.98);
+    }
+    .option-chip:active {
+        transform: scale(0.97);
+    }
+}
+
+/* Base Viewport & Overflow Guards */
+html, body {
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
+    position: relative;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Responsive Modal Styling for all devices */
+.responsive-modal-container {
+    width: 94%;
+    max-width: 28rem;
+    max-height: 90vh;
+    padding: 1.25rem;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+@media (min-width: 640px) {
+    .responsive-modal-container {
+        width: 100%;
+        padding: 2rem;
+    }
+}
+
+/* Responsive Tables */
+.responsive-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 1rem;
+}
+.responsive-table-wrapper::-webkit-scrollbar {
+    height: 6px;
+}
+.responsive-table-wrapper::-webkit-scrollbar-thumb {
+    background: #f43f5e;
+    border-radius: 9999px;
+}
+
+/* Admin Dashboard Mobile Viewport Enhancements */
+@media (max-width: 767px) {
+    #admin-portal-modal aside {
+        width: 100%;
+        max-height: 220px;
+        flex-shrink: 0;
+        border-bottom: 1px solid #1f2937;
+    }
+    #admin-portal-modal aside .admin-portal-nav {
+        display: flex;
+        flex-direction: row;
+        overflow-x: auto;
+        padding: 0.5rem 0.75rem;
+        gap: 0.5rem;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+    }
+    #admin-portal-modal aside .admin-portal-nav button {
+        flex-shrink: 0;
+        width: auto;
+        padding: 0.5rem 0.875rem;
+        font-size: 0.75rem;
+        border-radius: 0.75rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+    }
+    #admin-portal-modal aside .p-6.border-b {
+        padding: 0.75rem 1rem;
+    }
+    #admin-portal-modal aside .p-4.border-t {
+        display: none; /* Accessible through top or mobile header */
+    }
+    #admin-portal-modal main header {
+        padding: 0.75rem 1rem;
+    }
+    #admin-portal-modal main header h1 {
+        font-size: 1.125rem;
+    }
+    #admin-portal-modal .flex-1.overflow-y-auto {
+        padding: 1rem;
+    }
+}
+
+/* Mobile Category Pill Scroll */
+@media (max-width: 639px) {
+    .category-scroll-container {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+        justify-content: flex-start;
+        -webkit-overflow-scrolling: touch;
+        gap: 0.5rem;
+    }
+    .category-scroll-container .category-btn {
+        flex-shrink: 0;
+        font-size: 0.75rem;
+        padding: 0.5rem 0.875rem;
+    }
+}
+
+/* Cart Sidebar Mobile Width & Safe Area */
+@media (max-width: 639px) {
+    #cart-sidebar {
+        width: 100vw !important;
+        max-width: 100vw !important;
+    }
+}
+
+/* Animations for Mobile Navigation Drawer */
+#mobile-nav-drawer {
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+#mobile-nav-drawer.hidden {
+    display: none;
+    opacity: 0;
+    transform: translateY(-8px);
+}
+#mobile-nav-drawer:not(.hidden) {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Responsive Image Aspect Ratios */
+.responsive-card-img {
+    width: 100%;
+    height: 14rem;
+    object-fit: cover;
+}
+@media (min-width: 640px) {
+    .responsive-card-img {
+        height: 16rem;
+    }
+}
+@media (min-width: 1024px) {
+    .responsive-card-img {
+        height: 17rem;
+    }
+}
+
+/* ==========================================================================
+   UNIVERSAL MOBILE MODAL FIX (targets ALL centered modals automatically)
+   ========================================================================== */
+@media (max-width: 639px) {
+    /* All centered modals: reduce padding, use 94% width on mobile */
+    .fixed > [class*="translate-x-1/2"][class*="translate-y-1/2"] {
+        width: 94% !important;
+        max-width: 94vw !important;
+        padding: 1.25rem !important;
+        max-height: 88vh !important;
+        -webkit-overflow-scrolling: touch;
+    }
+    /* Modal headings smaller on mobile */
+    .fixed > [class*="translate-x-1/2"] h2 {
+        font-size: 1.125rem;
+    }
+    /* Stacked grid cols on tiny screens */
+    .grid-cols-2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    /* Review form: stack the 2-col grid on very small screens */
+    #review-modal .grid.grid-cols-2 {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Footer mobile responsiveness */
+@media (max-width: 639px) {
+    footer .grid {
+        gap: 1.5rem;
+    }
+    footer {
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+    }
+    footer h4 {
+        font-size: 0.95rem;
+    }
+}
+
+/* Products grid: 2-col on tablets instead of 1-col */
+@media (min-width: 480px) and (max-width: 767px) {
+    #products-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 1rem;
+    }
+}
+
+/* VIP bar text sizing for very small phones */
+@media (max-width: 380px) {
+    #vip-announcement-bar {
+        font-size: 0.65rem;
+        padding: 0.4rem 0.5rem;
+    }
+    #vip-announcement-bar .gap-4 {
+        gap: 0.5rem;
+    }
+}
+
+/* Studio option chips mobile sizing */
+@media (max-width: 480px) {
+    .option-chip {
+        padding: 0.5rem 0.75rem;
+    }
+    .option-chip h5 {
+        font-size: 0.7rem;
+    }
+    .option-chip span {
+        font-size: 0.625rem;
+    }
+}
+
+/* Cake studio grid responsive */
+@media (max-width: 639px) {
+    .studio-option-group {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+}
+
+/* Trust badges / pillars section mobile */
+@media (max-width: 639px) {
+    .flex.items-start.gap-4 {
+        gap: 0.75rem;
+    }
+}
+
+/* Ensure no horizontal overflow on any nested overflow */
+section, footer, nav {
+    max-width: 100vw;
+    overflow-x: hidden;
+}
+
+/* Back-to-top button mobile position */
+@media (max-width: 639px) {
+    #back-to-top {
+        bottom: 1rem;
+        right: 1rem;
+        width: 2.5rem;
+        height: 2.5rem;
+        font-size: 0.75rem;
+    }
+}
+
+/* Smooth safe-area aware padding for notched devices */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+    footer {
+        padding-bottom: calc(2rem + env(safe-area-inset-bottom));
+    }
+    #cart-sidebar {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
 }
