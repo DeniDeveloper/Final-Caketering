@@ -1327,13 +1327,39 @@
                         placeholder="Your delivery address"></textarea>
                 </div>
 
-                <!-- Terms agreement -->
-                <label class="flex items-center">
-                    <input type="checkbox" id="register-agree-terms" class="rounded text-pink-600 focus:ring-pink-500">
-                    <span class="ml-2 text-sm text-gray-600">I agree to the <a href="#"
-                            class="text-pink-600 hover:underline">Terms of Service</a> and <a href="#"
-                            class="text-pink-600 hover:underline">Privacy Policy</a></span>
-                </label>
+                <!-- Terms & Privacy Section -->
+                <div class="rounded-xl border border-pink-100 bg-pink-50/40 p-3.5 space-y-2.5">
+                    <label class="flex items-start cursor-pointer select-none">
+                        <input type="checkbox" id="register-agree-terms" class="mt-0.5 rounded text-pink-600 focus:ring-pink-500 w-4 h-4 cursor-pointer">
+                        <span class="ml-2.5 text-xs text-gray-700 leading-relaxed">
+                            I agree to the 
+                            <button type="button" onclick="openTermsPrivacyModal('terms')" class="text-pink-600 font-semibold hover:underline inline-flex items-center gap-0.5">
+                                Terms of Service <i class="fas fa-external-link-alt text-[9px]"></i>
+                            </button> 
+                            and 
+                            <button type="button" onclick="openTermsPrivacyModal('privacy')" class="text-pink-600 font-semibold hover:underline inline-flex items-center gap-0.5">
+                                Privacy Policy <i class="fas fa-external-link-alt text-[9px]"></i>
+                            </button>
+                        </span>
+                    </label>
+
+                    <!-- Collapsible Quick Highlights Summary -->
+                    <div class="border-t border-pink-100/80 pt-2">
+                        <button type="button" onclick="toggleTermsQuickSummary()" class="text-[11px] font-semibold text-pink-700 hover:text-pink-800 flex items-center justify-between w-full">
+                            <span class="flex items-center gap-1.5"><i class="fas fa-shield-check text-pink-500"></i> Terms & Privacy Highlights</span>
+                            <i id="terms-summary-chevron" class="fas fa-chevron-down transition-transform text-[10px]"></i>
+                        </button>
+                        <div id="terms-quick-summary" class="hidden mt-2 space-y-1.5 text-[11px] text-gray-600 pl-1 border-l-2 border-pink-300">
+                            <p>• <strong>Fresh Artisan Bakes:</strong> Handcrafted to order in Zamboanga City with premium ingredients.</p>
+                            <p>• <strong>Custom Orders:</strong> Bespoke cake commissions require 3–5 days notice & confirmation.</p>
+                            <p>• <strong>Data Security:</strong> Your delivery address and contacts are strictly used for fulfillment and never shared.</p>
+                            <p>• <strong>Food Allergens:</strong> Please notify us in advance regarding nut, dairy, or gluten sensitivities.</p>
+                            <div class="pt-1">
+                                <button type="button" onclick="openTermsPrivacyModal('terms')" class="text-[10px] font-bold text-pink-600 hover:underline">Read Full Terms & Privacy Policy &rarr;</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 <button onclick="registerUser()" class="w-full btn-primary text-white py-3 rounded-xl font-semibold">
                     <i class="fas fa-user-plus mr-2"></i> Create Account
@@ -1355,6 +1381,157 @@
                         <p>Your information is encrypted and never shared. We use industry-standard security to protect
                             your data.</p>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Terms of Service & Privacy Policy Modal -->
+    <div id="terms-privacy-modal" class="fixed inset-0 z-[70] hidden">
+        <div class="absolute inset-0 bg-black/60 modal-backdrop" onclick="closeTermsPrivacyModal()"></div>
+        <div
+            class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl shadow-2xl w-[94%] max-w-2xl p-6 sm:p-8 max-h-[88vh] flex flex-col z-10">
+            <!-- Modal Header -->
+            <div class="flex justify-between items-center pb-4 border-b border-gray-100 shrink-0">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-10 h-10 rounded-xl bg-pink-50 text-pink-600 flex items-center justify-center text-lg">
+                        <i class="fas fa-file-shield"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl sm:text-2xl font-bold serif text-gray-900" id="terms-modal-title">Terms & Privacy Policy</h2>
+                        <p class="text-xs text-gray-500">Caketering Artisan Bakery • Zamboanga City</p>
+                    </div>
+                </div>
+                <button onclick="closeTermsPrivacyModal()" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 hover:text-gray-800 transition flex items-center justify-center">
+                    <i class="fas fa-times text-sm"></i>
+                </button>
+            </div>
+
+            <!-- Tab Buttons -->
+            <div class="flex p-1.5 bg-gray-100/80 rounded-xl mt-4 shrink-0 gap-1.5">
+                <button id="tab-terms-btn" onclick="switchTermsPrivacyTab('terms')"
+                    class="flex-1 py-2 px-3 rounded-lg text-xs sm:text-sm font-semibold transition flex items-center justify-center gap-2 bg-white text-pink-600 shadow-sm">
+                    <i class="fas fa-file-contract"></i> Terms of Service
+                </button>
+                <button id="tab-privacy-btn" onclick="switchTermsPrivacyTab('privacy')"
+                    class="flex-1 py-2 px-3 rounded-lg text-xs sm:text-sm font-semibold transition flex items-center justify-center gap-2 text-gray-600 hover:text-gray-900">
+                    <i class="fas fa-user-shield"></i> Privacy Policy
+                </button>
+            </div>
+
+            <!-- Scrollable Content Area -->
+            <div class="flex-1 overflow-y-auto py-4 pr-1 my-2 space-y-5 text-xs sm:text-sm text-gray-600 leading-relaxed custom-scrollbar">
+                <!-- TERMS CONTENT TAB -->
+                <div id="terms-content-section" class="space-y-4">
+                    <div class="bg-amber-50/70 border border-amber-200/80 rounded-xl p-3.5 text-amber-900 text-xs">
+                        <p class="font-bold flex items-center gap-1.5 mb-1"><i class="fas fa-info-circle text-amber-600"></i> Effective Date: October 2026</p>
+                        <p>Welcome to Caketering! By accessing our website, creating an account, or placing an order, you agree to comply with and be bound by the following terms.</p>
+                    </div>
+
+                    <div>
+                        <h4 class="font-bold text-gray-900 text-sm mb-1 flex items-center gap-2">
+                            <span class="w-5 h-5 rounded-full bg-pink-100 text-pink-600 text-[11px] font-bold inline-flex items-center justify-center">1</span>
+                            Artisan Orders & Fresh Baking
+                        </h4>
+                        <p>Every cake, pastry, and dessert is baked fresh by our artisan culinary team in Zamboanga City. Product imagery on our catalog represents our actual baked works, though minor artistic nuances in hand-piped frosting or fresh fruit garnishes may occur naturally.</p>
+                    </div>
+
+                    <div>
+                        <h4 class="font-bold text-gray-900 text-sm mb-1 flex items-center gap-2">
+                            <span class="w-5 h-5 rounded-full bg-pink-100 text-pink-600 text-[11px] font-bold inline-flex items-center justify-center">2</span>
+                            Bespoke Custom Cake Commissions
+                        </h4>
+                        <p>Custom cake requests require a minimum lead time of <strong>3 to 5 days</strong> before the target event date. All custom designs, tier specifications, and flavor combinations are reviewed by our chef. Confirmation is finalized once the design proposal and deposit are acknowledged.</p>
+                    </div>
+
+                    <div>
+                        <h4 class="font-bold text-gray-900 text-sm mb-1 flex items-center gap-2">
+                            <span class="w-5 h-5 rounded-full bg-pink-100 text-pink-600 text-[11px] font-bold inline-flex items-center justify-center">3</span>
+                            Pricing, Currency & Payment Channels
+                        </h4>
+                        <p>All prices listed are in <strong>Philippine Peso (₱ / PHP)</strong>. We accept GCash, Cash on Delivery (COD), Major Credit/Debit Cards, and Direct Bank Transfers. Standard flat local delivery is ₱50.00 within Zamboanga City proper, with FREE delivery on orders over ₱1,500.00.</p>
+                    </div>
+
+                    <div>
+                        <h4 class="font-bold text-gray-900 text-sm mb-1 flex items-center gap-2">
+                            <span class="w-5 h-5 rounded-full bg-pink-100 text-pink-600 text-[11px] font-bold inline-flex items-center justify-center">4</span>
+                            Cancellation & Refund Policy
+                        </h4>
+                        <p>Because our baked goods are highly perishable and made-to-order, standard catalog orders may be cancelled up to 24 hours prior to scheduled delivery. Custom commissioned cakes with customized toppers or structures cannot be cancelled within 48 hours of delivery.</p>
+                    </div>
+
+                    <div>
+                        <h4 class="font-bold text-gray-900 text-sm mb-1 flex items-center gap-2">
+                            <span class="w-5 h-5 rounded-full bg-pink-100 text-pink-600 text-[11px] font-bold inline-flex items-center justify-center">5</span>
+                            Food Safety & Allergen Notice
+                        </h4>
+                        <p>Our kitchen handles dairy, eggs, gluten (wheat flour), and various tree nuts (almonds, pistachios). While we uphold strict sanitization and hygiene standards, customers with severe allergies are advised to disclose specific dietary requirements in the order notes.</p>
+                    </div>
+                </div>
+
+                <!-- PRIVACY CONTENT TAB -->
+                <div id="privacy-content-section" class="space-y-4 hidden">
+                    <div class="bg-pink-50/70 border border-pink-200/80 rounded-xl p-3.5 text-pink-900 text-xs">
+                        <p class="font-bold flex items-center gap-1.5 mb-1"><i class="fas fa-lock text-pink-600"></i> Your Privacy & Data Protection</p>
+                        <p>At Caketering, we respect your confidentiality. We strictly collect only the necessary information required to bake, customize, and deliver your orders smoothly.</p>
+                    </div>
+
+                    <div>
+                        <h4 class="font-bold text-gray-900 text-sm mb-1 flex items-center gap-2">
+                            <span class="w-5 h-5 rounded-full bg-rose-100 text-rose-600 text-[11px] font-bold inline-flex items-center justify-center">1</span>
+                            Information We Collect
+                        </h4>
+                        <ul class="list-disc pl-5 space-y-1">
+                            <li><strong>Account Data:</strong> Name, verified email address, phone number, and delivery address.</li>
+                            <li><strong>Order Information:</strong> Items purchased, custom cake specifications, special dedication notes, and delivery schedules.</li>
+                            <li><strong>Feedback:</strong> Reviews, ratings, and customer inquiries submitted through our portal.</li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h4 class="font-bold text-gray-900 text-sm mb-1 flex items-center gap-2">
+                            <span class="w-5 h-5 rounded-full bg-rose-100 text-rose-600 text-[11px] font-bold inline-flex items-center justify-center">2</span>
+                            How We Use Your Information
+                        </h4>
+                        <p>We use your data solely to fulfill orders, coordinate dispatch with local couriers in Zamboanga City, provide real-time order tracking updates, and verify account security.</p>
+                    </div>
+
+                    <div>
+                        <h4 class="font-bold text-gray-900 text-sm mb-1 flex items-center gap-2">
+                            <span class="w-5 h-5 rounded-full bg-rose-100 text-rose-600 text-[11px] font-bold inline-flex items-center justify-center">3</span>
+                            Zero Third-Party Sharing & Security
+                        </h4>
+                        <p>We <strong>never sell, rent, or trade</strong> your personal information to marketing brokers or third parties. All sensitive credentials are encrypted, and order state is synchronized securely within your local browser session.</p>
+                    </div>
+
+                    <div>
+                        <h4 class="font-bold text-gray-900 text-sm mb-1 flex items-center gap-2">
+                            <span class="w-5 h-5 rounded-full bg-rose-100 text-rose-600 text-[11px] font-bold inline-flex items-center justify-center">4</span>
+                            Your Privacy Rights
+                        </h4>
+                        <p>You have full access to inspect, modify, or erase your stored account records at any time directly through the <em>My Profile</em> settings or by contacting our team.</p>
+                    </div>
+
+                    <div>
+                        <h4 class="font-bold text-gray-900 text-sm mb-1 flex items-center gap-2">
+                            <span class="w-5 h-5 rounded-full bg-rose-100 text-rose-600 text-[11px] font-bold inline-flex items-center justify-center">5</span>
+                            Contact Our Data Privacy Lead
+                        </h4>
+                        <p>For questions or privacy concerns, reach our team at <a href="mailto:caketering.ph@gmail.com" class="text-pink-600 font-bold hover:underline">caketering.ph@gmail.com</a> or via phone at <strong>+63 965 046 9213</strong>.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer Actions -->
+            <div class="pt-3 border-t border-gray-100 flex flex-col sm:flex-row gap-2.5 justify-between items-center shrink-0">
+                <p class="text-[11px] text-gray-500 text-center sm:text-left">By proceeding, you acknowledge understanding of these policies.</p>
+                <div class="flex gap-2 w-full sm:w-auto">
+                    <button onclick="closeTermsPrivacyModal()" class="flex-1 sm:flex-none px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl text-xs transition">
+                        Close
+                    </button>
+                    <button onclick="acceptTermsFromModal()" class="flex-1 sm:flex-none btn-primary px-5 py-2 text-white font-semibold rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-sm">
+                        <i class="fas fa-check-circle"></i> I Accept Terms & Privacy
+                    </button>
                 </div>
             </div>
         </div>
@@ -2936,6 +3113,8 @@
                         <li><a href="#custom" class="hover:text-white transition">Custom Cakes</a></li>
                         <li><a href="#about" class="hover:text-white transition">About Us</a></li>
                         <li><a href="#contact" class="hover:text-white transition">Contact</a></li>
+                        <li><a href="javascript:void(0)" onclick="openTermsPrivacyModal('terms')" class="hover:text-white transition">Terms of Service</a></li>
+                        <li><a href="javascript:void(0)" onclick="openTermsPrivacyModal('privacy')" class="hover:text-white transition">Privacy Policy</a></li>
                     </ul>
                 </div>
                 <div>

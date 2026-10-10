@@ -711,7 +711,7 @@ function registerUser() {
     }
 
     if (!agreeTerms) {
-        showNotification('Please agree to the Terms and Privacy Policy', 'error');
+        showNotification('Please agree to the Terms of Service & Privacy Policy', 'error');
         return;
     }
 
@@ -742,7 +742,71 @@ function registerUser() {
 
     updateUserUI();
     closeAuthModal();
-    showNotification('Account created successfully!', 'success');
+    showNotification('Account created successfully! Welcome to Caketering.', 'success');
+}
+
+// --- TERMS OF SERVICE & PRIVACY POLICY MODAL SYSTEM ---
+function openTermsPrivacyModal(tab = 'terms') {
+    const modal = document.getElementById('terms-privacy-modal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        switchTermsPrivacyTab(tab);
+    }
+}
+
+function closeTermsPrivacyModal() {
+    const modal = document.getElementById('terms-privacy-modal');
+    if (modal) modal.classList.add('hidden');
+}
+
+function switchTermsPrivacyTab(tab) {
+    const termsSec = document.getElementById('terms-content-section');
+    const privacySec = document.getElementById('privacy-content-section');
+    const termsBtn = document.getElementById('tab-terms-btn');
+    const privacyBtn = document.getElementById('tab-privacy-btn');
+    const modalTitle = document.getElementById('terms-modal-title');
+
+    if (tab === 'terms') {
+        if (termsSec) termsSec.classList.remove('hidden');
+        if (privacySec) privacySec.classList.add('hidden');
+        if (modalTitle) modalTitle.textContent = 'Terms of Service';
+        if (termsBtn) {
+            termsBtn.className = 'flex-1 py-2 px-3 rounded-lg text-xs sm:text-sm font-semibold transition flex items-center justify-center gap-2 bg-white text-pink-600 shadow-sm';
+        }
+        if (privacyBtn) {
+            privacyBtn.className = 'flex-1 py-2 px-3 rounded-lg text-xs sm:text-sm font-semibold transition flex items-center justify-center gap-2 text-gray-600 hover:text-gray-900';
+        }
+    } else {
+        if (termsSec) termsSec.classList.add('hidden');
+        if (privacySec) privacySec.classList.remove('hidden');
+        if (modalTitle) modalTitle.textContent = 'Privacy Policy';
+        if (privacyBtn) {
+            privacyBtn.className = 'flex-1 py-2 px-3 rounded-lg text-xs sm:text-sm font-semibold transition flex items-center justify-center gap-2 bg-white text-pink-600 shadow-sm';
+        }
+        if (termsBtn) {
+            termsBtn.className = 'flex-1 py-2 px-3 rounded-lg text-xs sm:text-sm font-semibold transition flex items-center justify-center gap-2 text-gray-600 hover:text-gray-900';
+        }
+    }
+}
+
+function acceptTermsFromModal() {
+    const checkbox = document.getElementById('register-agree-terms');
+    if (checkbox) {
+        checkbox.checked = true;
+    }
+    closeTermsPrivacyModal();
+    showNotification('Terms & Privacy Policy accepted', 'success');
+}
+
+function toggleTermsQuickSummary() {
+    const summary = document.getElementById('terms-quick-summary');
+    const chevron = document.getElementById('terms-summary-chevron');
+    if (summary) {
+        summary.classList.toggle('hidden');
+        if (chevron) {
+            chevron.classList.toggle('rotate-180');
+        }
+    }
 }
 
 function forgotPassword() {
