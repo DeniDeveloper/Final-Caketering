@@ -45,7 +45,7 @@ const DEFAULT_PRODUCTS = [
         image: "https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=500&auto=format&fit=crop&q=60",
         description: "Fresh strawberries layered with vanilla sponge and whipped cream",
         badge: "Best Seller",
-        inStock: false,
+        inStock: true,
         rating: 4.9,
         reviewsCount: 38,
         ingredients: "Fresh Strawberries, Vanilla Sponge, Heavy Cream, Sugar, Eggs, Milk",
@@ -59,7 +59,7 @@ const DEFAULT_PRODUCTS = [
         image: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=500&auto=format&fit=crop&q=60",
         description: "Rich dark chocolate layers with ganache frosting",
         badge: "Popular",
-        inStock: false,
+        inStock: true,
         rating: 4.8,
         reviewsCount: 42,
         ingredients: "Belgian Dark Chocolate, Dutch Cocoa, Butter, Flour, Eggs, Vanilla",
@@ -73,7 +73,7 @@ const DEFAULT_PRODUCTS = [
         image: "https://images.unsplash.com/photo-1576618148400-f54bed99fcfd?w=500&auto=format&fit=crop&q=60",
         description: "Classic red velvet with cream cheese frosting",
         badge: null,
-        inStock: false,
+        inStock: true,
         rating: 4.7,
         reviewsCount: 29,
         ingredients: "Cocoa, Buttermilk, Cream Cheese, Flour, Sugar, Vanilla",
@@ -87,7 +87,7 @@ const DEFAULT_PRODUCTS = [
         image: "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=500&auto=format&fit=crop&q=60",
         description: "Buttery, flaky French croissants baked fresh",
         badge: "Fresh",
-        inStock: false,
+        inStock: true,
         rating: 4.9,
         reviewsCount: 51,
         ingredients: "French Butter, Wheat Flour, Yeast, Sugar, Sea Salt, Eggs",
@@ -101,7 +101,7 @@ const DEFAULT_PRODUCTS = [
         image: "https://images.unsplash.com/photo-1519340333755-56e9c1d04579?w=500&auto=format&fit=crop&q=60",
         description: "Filipino purple yam cake with macapuno strings",
         badge: "Local Favorite",
-        inStock: false,
+        inStock: true,
         rating: 5.0,
         reviewsCount: 64,
         ingredients: "Real Ube Halaya, Macapuno Strings, Chiffon Cake Base, Whipped Cream",
@@ -115,7 +115,7 @@ const DEFAULT_PRODUCTS = [
         image: "https://images.unsplash.com/photo-1569864358642-9d1684040f43?w=500&auto=format&fit=crop&q=60",
         description: "Assorted flavors: pistachio, raspberry, lemon, chocolate",
         badge: null,
-        inStock: false,
+        inStock: true,
         rating: 4.8,
         reviewsCount: 33,
         ingredients: "Almond Flour, Egg Whites, Sugar, Buttercream, Natural Fruit Puree",
@@ -129,7 +129,7 @@ const DEFAULT_PRODUCTS = [
         image: "https://images.unsplash.com/photo-1519915028121-7d3463d20b13?w=500&auto=format&fit=crop&q=60",
         description: "Sweet mangoes on chiffon cake with fresh cream",
         badge: "Seasonal",
-        inStock: false,
+        inStock: true,
         rating: 4.9,
         reviewsCount: 47,
         ingredients: "Ripe Carabao Mangoes, Chiffon Sponge, Fresh Cream, Sugar",
@@ -143,7 +143,7 @@ const DEFAULT_PRODUCTS = [
         image: "https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=500&auto=format&fit=crop&q=60",
         description: "Chewy cookies with Belgian chocolate chips",
         badge: null,
-        inStock: false,
+        inStock: true,
         rating: 4.6,
         reviewsCount: 22,
         ingredients: "Belgian Chocolate Chips, Brown Sugar, Butter, Flour, Vanilla",
@@ -157,7 +157,7 @@ const DEFAULT_PRODUCTS = [
         image: "https://images.unsplash.com/photo-1519915028121-7d3463d20b13?w=500&auto=format&fit=crop&q=60",
         description: "Butter tart shell with custard and fresh fruits",
         badge: null,
-        inStock: false,
+        inStock: true,
         rating: 4.7,
         reviewsCount: 19,
         ingredients: "Shortcrust Pastry, Vanilla Custard, Kiwi, Strawberries, Blueberries",
@@ -206,8 +206,12 @@ document.addEventListener('DOMContentLoaded', () => {
     customCakes = customCakes.filter(c => c.occasion !== '50th Birthday' && c.occasion !== 'Wedding');
     setStorage('customCakes', customCakes);
 
-    // Ensure all products are marked out of stock
-    products = products.map(p => ({ ...p, inStock: false }));
+    // Initialize or restore products with inStock: true
+    if (!products || products.length === 0) {
+        products = DEFAULT_PRODUCTS;
+    } else {
+        products = products.map(p => ({ ...p, inStock: p.inStock !== false }));
+    }
     setStorage('products', products);
 
     renderProducts('all');
