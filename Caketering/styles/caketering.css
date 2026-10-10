@@ -98,6 +98,15 @@ h1, h2, h3, .serif {
     border-bottom: 1px solid rgba(244, 63, 94, 0.08);
 }
 
+.nav-link {
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    white-space: nowrap;
+}
+.nav-link:hover {
+    color: #F43F5E;
+    background-color: rgba(253, 242, 248, 0.85);
+}
+
 /* Buttons */
 .btn-primary {
     background: linear-gradient(135deg, #F43F5E 0%, #FB923C 100%);
