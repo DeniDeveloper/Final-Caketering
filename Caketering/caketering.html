@@ -34,31 +34,33 @@
 </head>
 
 <body class="text-gray-800 overflow-x-hidden antialiased">
-    <!-- Top VIP Announcement / Voucher Ticker -->
-    <div id="vip-announcement-bar"
-        class="bg-gradient-to-r from-pink-600 via-rose-500 to-orange-500 text-white text-xs sm:text-sm font-medium py-2.5 px-4 sm:px-6 lg:px-8 xl:px-12 shadow-sm relative z-50">
-        <div class="w-full max-w-[1600px] mx-auto flex items-center justify-between gap-4">
-            <div class="flex items-center gap-2 overflow-hidden whitespace-nowrap text-center sm:text-left flex-1 justify-center sm:justify-start">
-                <span class="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-sm px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider text-[10px]">
-                    <i class="fas fa-sparkles text-amber-300"></i> Grand Promo
-                </span>
-                <span class="truncate">Use code <strong class="font-bold underline tracking-wider cursor-pointer" onclick="copyPromoCode('SWEET10')">SWEET10</strong> for <strong>10% OFF</strong> your order!</span>
-                <span class="hidden md:inline text-white/80">• 🚚 FREE local delivery in Zamboanga City on orders over ₱1,500</span>
-            </div>
-            <div class="flex items-center gap-3 shrink-0">
-                <button onclick="copyPromoCode('SWEET10')"
-                    class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 bg-white text-pink-600 rounded-full text-xs font-bold hover:bg-pink-50 transition shadow-sm">
-                    <i class="fas fa-copy"></i> Copy Code
-                </button>
-                <button onclick="closeAnnouncementBanner()" class="text-white/80 hover:text-white p-1 transition" title="Dismiss">
-                    <i class="fas fa-times text-xs"></i>
-                </button>
+    <!-- Fixed Header Wrapper (Announcement + Nav) -->
+    <div id="fixed-header" class="fixed top-0 left-0 w-full z-50">
+        <!-- Top VIP Announcement / Voucher Ticker -->
+        <div id="vip-announcement-bar"
+            class="bg-gradient-to-r from-pink-600 via-rose-500 to-orange-500 text-white text-xs sm:text-sm font-medium py-2.5 px-4 sm:px-6 lg:px-8 xl:px-12 shadow-sm relative">
+            <div class="w-full max-w-[1600px] mx-auto flex items-center justify-between gap-4">
+                <div class="flex items-center gap-2 overflow-hidden whitespace-nowrap text-center sm:text-left flex-1 justify-center sm:justify-start">
+                    <span class="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-sm px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider text-[10px]">
+                        <i class="fas fa-sparkles text-amber-300"></i> Grand Promo
+                    </span>
+                    <span class="truncate">Use code <strong class="font-bold underline tracking-wider cursor-pointer" onclick="copyPromoCode('SWEET10')">SWEET10</strong> for <strong>10% OFF</strong> your order!</span>
+                    <span class="hidden md:inline text-white/80">• 🚚 FREE local delivery in Zamboanga City on orders over ₱1,500</span>
+                </div>
+                <div class="flex items-center gap-3 shrink-0">
+                    <button onclick="copyPromoCode('SWEET10')"
+                        class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 bg-white text-pink-600 rounded-full text-xs font-bold hover:bg-pink-50 transition shadow-sm">
+                        <i class="fas fa-copy"></i> Copy Code
+                    </button>
+                    <button onclick="closeAnnouncementBanner()" class="text-white/80 hover:text-white p-1 transition" title="Dismiss">
+                        <i class="fas fa-times text-xs"></i>
+                    </button>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Navigation -->
-    <nav class="sticky top-0 w-full glass-nav shadow-sm z-40 transition-all duration-300" id="navbar">
+        <!-- Navigation -->
+        <nav class="w-full glass-nav shadow-sm transition-all duration-300" id="navbar">
         <div class="w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
             <div class="flex items-center justify-between h-16 sm:h-20 w-full">
                 <!-- Brand Logo (Left) -->
@@ -210,6 +212,23 @@
             </div>
         </div>
     </nav>
+    </div><!-- /fixed-header -->
+
+    <!-- Spacer to offset fixed header height -->
+    <div id="header-spacer"></div>
+    <script>
+        function updateHeaderSpacer() {
+            const header = document.getElementById('fixed-header');
+            const spacer = document.getElementById('header-spacer');
+            if (header && spacer) {
+                spacer.style.height = header.offsetHeight + 'px';
+            }
+        }
+        window.addEventListener('load', updateHeaderSpacer);
+        window.addEventListener('resize', updateHeaderSpacer);
+        // Run immediately too
+        document.addEventListener('DOMContentLoaded', updateHeaderSpacer);
+    </script>
 
     <!-- Showstopping Hero Section -->
     <section class="relative pt-8 sm:pt-12 pb-16 sm:pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden bg-warm-gradient">

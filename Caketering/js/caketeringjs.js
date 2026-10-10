@@ -3569,7 +3569,11 @@ function closeAnnouncementBanner() {
         bar.style.maxHeight = '0';
         bar.style.opacity = '0';
         bar.style.overflow = 'hidden';
-        setTimeout(() => bar.remove(), 300);
+        setTimeout(() => {
+            bar.remove();
+            // Recalculate spacer height after banner is removed
+            if (typeof updateHeaderSpacer === 'function') updateHeaderSpacer();
+        }, 300);
     }
 }
 
